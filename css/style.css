@@ -49,6 +49,14 @@ a{color:inherit}
 :focus-visible{outline:2.5px solid var(--orange);outline-offset:3px;border-radius:2px}
 .hero :focus-visible{outline-color:#fff}
 
+.skip-link{
+  position:absolute;left:1rem;top:-3rem;z-index:100;
+  background:var(--ink);color:#fff;text-decoration:none;
+  padding:.7rem 1.1rem;border-radius:4px;font-size:.88rem;font-weight:500;
+  transition:top .2s;
+}
+.skip-link:focus{top:1rem}
+
 .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad)}
 .sec{padding-block:clamp(4rem,9vw,7.5rem);scroll-margin-top:var(--nav-h)}
 .sec-eyebrow{

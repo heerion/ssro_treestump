@@ -10,6 +10,8 @@
    6. 내비게이션 현재 위치 표시
    ============================================================ */
 
+const esc = TimelineCore.esc;
+
 function start(){
 
   /* ============================================================
@@ -17,12 +19,12 @@ function start(){
      ============================================================ */
   document.getElementById("memberGrid").innerHTML = (DATA.members || []).map((m, i) => `
     <article class="member rv" style="transition-delay:${Math.min(i,7)*60}ms">
-      <div class="ring-avatar" aria-hidden="true"><span>${(m.name || "?").slice(0,1)}</span></div>
-      <p class="member-role">${m.role}</p>
-      <h3 class="member-name">${m.name}</h3>
-      <p class="member-term">${m.term}</p>
-      <p class="member-word">${m.word}</p>
-      <div class="tags">${(m.tags || []).map(t=>`<i>${t}</i>`).join("")}</div>
+      <div class="ring-avatar" aria-hidden="true"><span>${esc((m.name || "?").slice(0,1))}</span></div>
+      <p class="member-role">${esc(m.role)}</p>
+      <h3 class="member-name">${esc(m.name)}</h3>
+      <p class="member-term">${esc(m.term)}</p>
+      <p class="member-word">${esc(m.word)}</p>
+      <div class="tags">${(m.tags || []).map(t=>`<i>${esc(t)}</i>`).join("")}</div>
     </article>`).join("");
 
   /* ============================================================
@@ -31,110 +33,26 @@ function start(){
   /* 연도는 자동입니다. 올해가 지나거나 DATA.years 에 새 해를 넣으면
      나이테도 그만큼 저절로 늘어납니다. */
   const START = 2009;
-  const NOW = Math.max(
-    new Date().getFullYear(),
-    ...Object.keys(DATA.years).map(Number)
-  );
-  const years = [];
-  for (let y = START; y <= NOW; y++) years.push(y);
+  const { now: NOW, list: years } = TimelineCore.yearRange(DATA.years, START);
   document.getElementById("capYear").textContent = NOW;
   document.querySelectorAll("[data-nth-year]").forEach(el => {
     el.textContent = (NOW - START + 1) + "년째 운영 중";
   });
 
-  const NS = "http://www.w3.org/2000/svg";
-  const CX = 196, CY = 212;
-  const svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("viewBox", "0 0 400 400");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", `2009년부터 ${NOW}년까지의 활동을 나이테로 나타낸 그림`);
-
-  const bark = document.createElementNS(NS, "circle");
-  bark.setAttribute("cx",CX); bark.setAttribute("cy",CY); bark.setAttribute("r",170);
-  bark.setAttribute("fill","#F6EEE2"); bark.setAttribute("stroke","#D8BE9A"); bark.setAttribute("stroke-width","7");
-  svg.appendChild(bark);
-
-  const pith = document.createElementNS(NS, "circle");
-  pith.setAttribute("cx",CX); pith.setAttribute("cy",CY); pith.setAttribute("r",9);
-  pith.setAttribute("fill","#E4CFB2"); pith.setAttribute("pointer-events","none");
-  svg.appendChild(pith);
-
-  const ringEls = {};
-  const R0 = 20, R1 = 158;
-  const STEP = years.length > 1 ? (R1 - R0) / (years.length - 1) : 0;
-  years.forEach((y, i) => {
-    const r = R0 + i * STEP + Math.sin(i * 1.7) * Math.min(1.6, STEP * .2);
-    const g = document.createElementNS(NS, "g");
-    g.setAttribute("class", "ring-g" + (DATA.years[y] ? " has" : ""));
-    const e = document.createElementNS(NS, "ellipse");
-    e.setAttribute("cx", CX + Math.sin(i) * 2.5);
-    e.setAttribute("cy", CY - Math.cos(i * .8) * 2);
-    e.setAttribute("rx", r * 1.02); e.setAttribute("ry", r * .97);
-    e.setAttribute("class", "ring-line");
-    const hit = e.cloneNode();
-    hit.setAttribute("class", "ring-hit");
-    const title = document.createElementNS(NS, "title");
-    title.textContent = y + "년";
-    g.append(e, hit, title);
-    g.addEventListener("click", () => { openYear_(y, true); });
-    svg.appendChild(g);
-    ringEls[y] = g;
-  });
-
-  const crack = document.createElementNS(NS, "path");
-  crack.setAttribute("d", "M200 206 L150 116 L142 92");
-  crack.setAttribute("stroke", "#DCC5A5"); crack.setAttribute("stroke-width", "2");
-  crack.setAttribute("fill", "none"); crack.setAttribute("stroke-linecap", "round");
-  crack.setAttribute("pointer-events", "none");
-  svg.appendChild(crack);
-
-  const sprout = document.createElementNS(NS, "g");
-  sprout.setAttribute("pointer-events","none");
-  const stem = document.createElementNS(NS, "path");
-  stem.setAttribute("d","M312 96 C 330 78 340 64 344 50");
-  stem.setAttribute("stroke","#E89B47"); stem.setAttribute("stroke-width","7");
-  stem.setAttribute("fill","none"); stem.setAttribute("stroke-linecap","round");
-  const leaves = document.createElementNS(NS, "path");
-  leaves.setAttribute("d","M344 50 C 326 44 316 28 320 8 C 340 14 350 32 344 50 Z M344 50 C 350 30 366 18 386 18 C 384 40 368 52 344 50 Z");
-  leaves.setAttribute("fill","#E89B47");
-  sprout.append(stem, leaves);
-  svg.appendChild(sprout);
+  const { svg, ringEls } = TimelineCore.buildRingsSvg(years, DATA.years, y => openYear_(y, true));
   document.getElementById("stump").appendChild(svg);
 
   /* 연도 목록 — 기록이 있는 구간만 먼저 보이고, 나머지는 접어 둡니다 */
   const yearsBox = document.getElementById("years");
-  const SHOW = 5;                                   /* 처음에 펼쳐 두는 최근 연도 수 */
-  const mainYears = years.slice(-SHOW).reverse();   /* 최근 5개년 */
-  const restYears = years.slice(0, -SHOW).reverse();/* 그 이전 — 접어 둠 */
-  const cutoff = mainYears[mainYears.length - 1];   /* 펼쳐 둔 구간의 가장 오래된 해 */
+  const { restYears, mainHTML, restHTML, cutoff } =
+    TimelineCore.buildYearListHTML(years, DATA.years, { start: START, showCount: 5 });
 
-  function yearRow(y, i, folded){
-    /* 빈 배열([])은 기록이 없는 것으로 봅니다 */
-    const items = (DATA.years[y] || []).length ? DATA.years[y] : null;
-    const nth = y - START + 1;
-    const body = items
-      ? `<ul class="log">${items.map(a =>
-          `<li><time>${y}.${a.m}</time><div><h4>${a.t}</h4><p>${a.d}</p></div></li>`).join("")}</ul>`
-      : `<div class="log-empty"><b>이 해의 기록이 아직 없어요</b>사진이나 회의록을 찾아 정리하면 여기에 남습니다. 앞 기수의 활동도 함께 채워 주세요.</div>`;
-    return `
-    <div class="yr rv${items || !folded ? "" : " empty"}" data-y="${y}" style="transition-delay:${Math.min(i,8)*35}ms">
-      <button class="yr-head" type="button" aria-expanded="false" aria-controls="yr-${y}">
-        <span class="yr-num">${y}</span>
-        <span class="yr-meta">${nth}번째 해${items ? ` · 기록 ${items.length}건` : " · 기록 없음"}</span>
-        <span class="yr-mark" aria-hidden="true"></span>
-      </button>
-      <div class="yr-body" id="yr-${y}"><div class="yr-inner">${body}</div></div>
-    </div>`;
-  }
-
-  yearsBox.innerHTML =
-    mainYears.map((y, i) => yearRow(y, i, false)).join("") +
-    (restYears.length
-      ? `<div class="yr-rest" id="yrRest" hidden>${restYears.map((y, i) => yearRow(y, i, true)).join("")}</div>
-         <button class="more" id="moreBtn" type="button" aria-expanded="false">
-           ${restYears[restYears.length - 1]}–${restYears[0]}년도 펼치기
-         </button>`
-      : "");
+  yearsBox.innerHTML = mainHTML + (restYears.length
+    ? `<div class="yr-rest" id="yrRest" hidden>${restHTML}</div>
+       <button class="more" id="moreBtn" type="button" aria-expanded="false">
+         ${restYears[restYears.length - 1]}–${restYears[0]}년도 펼치기
+       </button>`
+    : "");
 
   const moreBtn = document.getElementById("moreBtn");
   const restBox = document.getElementById("yrRest");
