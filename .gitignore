@@ -1,0 +1,8 @@
+# 맥 / 윈도우가 만드는 파일
+.DS_Store
+Thumbs.db
+
+# 편집기 설정
+.vscode/
+.idea/
+*.swp
