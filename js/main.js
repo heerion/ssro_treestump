@@ -122,7 +122,7 @@ function start(){
   (function igFeed(){
     const box = document.getElementById("igFeed");
     const ig = DATA.instagram || {};
-    const handle = ig.handle || "ssronet";
+    const handle = ig.handle || "treestump_ssro";
     const profile = `https://www.instagram.com/${handle}/`;
 
     const card = () => {

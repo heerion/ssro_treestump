@@ -31,7 +31,7 @@ const DATA = {
   /* ── 활동 사진 ─────────────────────────────────────────────
      방법 A (권장) · 새 글이 저절로 올라옵니다.
        Behold(behold.so), LightWidget, SnapWidget 같은 곳에서
-       @ssronet 계정을 한 번 연결하면 붙여넣기용 코드를 줍니다.
+       @treestump_ssro 계정을 한 번 연결하면 붙여넣기용 코드를 줍니다.
        그 코드를 아래 widget 따옴표 안에 통째로 넣으세요.
        한 번 넣으면 그 뒤로는 코드를 건드릴 일이 없습니다.
        (계정이 '프로페셔널(비즈니스·크리에이터)'이어야 연결됩니다.)
@@ -42,7 +42,7 @@ const DATA = {
 
      둘 다 비어 있으면 인스타그램으로 가는 안내 카드만 보입니다. */
   instagram: {
-    handle: "ssronet",
+    handle: "treestump_ssro",
     widget: "",
     posts: [
       // "https://www.instagram.com/p/XXXXXXXXXXX/",
