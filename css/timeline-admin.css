@@ -1,0 +1,112 @@
+/* ============================================================
+   연표 편집기 전용 스타일. css/style.css 의 색·글꼴 토큰을 그대로 쓰고,
+   여기서는 편집기 화면 배치만 다룹니다.
+   ============================================================ */
+
+.admin-body{background:var(--paper);min-height:100vh}
+
+.admin-top{
+  display:flex;flex-wrap:wrap;gap:1.2rem 1.6rem;align-items:center;
+  padding:1.2rem clamp(1.25rem,4vw,3rem);border-bottom:1px solid var(--line);
+  background:var(--panel);
+}
+.admin-brand{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink)}
+.admin-brand img{width:24px}
+.admin-brand span{font-family:var(--latin);font-weight:700;font-size:.85rem;letter-spacing:-.01em}
+.admin-top-title{margin-right:auto}
+.admin-top-title h1{margin:0;font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
+.admin-top-title p{margin:.2rem 0 0;font-size:.85rem;color:var(--mute)}
+.admin-back{white-space:nowrap}
+
+.admin-banner{
+  margin:1.2rem clamp(1.25rem,4vw,3rem) 0;padding:1rem 1.2rem;
+  background:#FFF6EF;border:1px solid var(--amber);border-radius:6px;
+  display:flex;flex-wrap:wrap;gap:.8rem 1.4rem;align-items:center;justify-content:space-between;
+}
+.admin-banner[hidden]{display:none}
+.admin-banner p{margin:0;font-size:.9rem}
+.admin-banner-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+
+.admin-main{
+  max-width:1320px;margin:0 auto;padding:1.6rem clamp(1.25rem,4vw,3rem) 4rem;
+  display:grid;gap:1.4rem;grid-template-columns:1fr;
+}
+@media(min-width:980px){
+  .admin-main{grid-template-columns:1.15fr .85fr}
+  .admin-export{grid-column:1 / -1}
+}
+
+.admin-panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:1.4rem clamp(1.1rem,2.5vw,1.8rem) 1.7rem;
+}
+.admin-panel-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.admin-panel-head h2{margin:0;font-size:1.05rem;font-weight:600}
+.admin-hint{font-size:.85rem;color:var(--mute);margin:.5rem 0 1.3rem;line-height:1.65}
+.admin-save-state{font-family:var(--mono);font-size:.72rem;color:var(--mute)}
+.admin-save-state.saved{color:#3E7A4C}
+
+/* ── 연도 목록 편집 ─────────────────────────────────────── */
+.admin-year-list{display:flex;flex-direction:column;gap:.9rem}
+.admin-year{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.admin-year-head{
+  display:flex;align-items:center;gap:.7rem;padding:.75rem .9rem;
+  background:#FBFAF7;border-bottom:1px solid var(--line);
+}
+.admin-year-head .yr-input{
+  width:5.4em;font-family:var(--display);font-size:1.15rem;text-align:center;
+  border:1px solid var(--line);border-radius:4px;padding:.25rem .3rem;background:var(--panel);
+}
+.admin-year-head .yr-count{font-family:var(--mono);font-size:.74rem;color:var(--mute);margin-right:auto}
+.admin-icon-btn{
+  background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink-2);
+  font-size:.78rem;padding:.35rem .6rem;transition:.15s;
+}
+.admin-icon-btn:hover{border-color:var(--orange);color:var(--orange)}
+.admin-icon-btn.danger:hover{border-color:#C7401A;color:#C7401A}
+
+.admin-entries{display:flex;flex-direction:column}
+.admin-entry{
+  display:grid;grid-template-columns:5rem 1fr auto;gap:.6rem .8rem;
+  padding:.8rem .9rem;border-bottom:1px solid #EFEDE8;align-items:start;
+}
+.admin-entry:last-child{border-bottom:0}
+.admin-entry select,.admin-entry input,.admin-entry textarea{
+  width:100%;font:inherit;font-size:.87rem;padding:.5rem .6rem;
+  border:1px solid var(--line);border-radius:4px;background:var(--panel);
+}
+.admin-entry textarea{resize:vertical;min-height:2.6em;line-height:1.55}
+.admin-entry .entry-fields{display:flex;flex-direction:column;gap:.45rem}
+.admin-entry .entry-fields input.bad,.admin-entry textarea.bad{border-color:#C7401A}
+.admin-entry-actions{display:flex;flex-direction:column;gap:.35rem}
+.admin-empty-note{padding:.9rem;font-size:.82rem;color:var(--mute)}
+.admin-year-foot{padding:.6rem .9rem;border-top:1px solid #EFEDE8}
+.admin-add-entry{
+  background:none;border:1px dashed var(--line);border-radius:4px;width:100%;
+  padding:.5rem;font-size:.82rem;color:var(--mute);transition:.15s;
+}
+.admin-add-entry:hover{border-color:var(--orange);color:var(--orange)}
+.admin-no-years{padding:1.4rem 0;color:var(--mute);font-size:.9rem;text-align:center}
+
+/* ── 미리보기 ───────────────────────────────────────────── */
+.admin-rings .stump{max-width:220px}
+.admin-preview .yr-head{cursor:pointer}
+.admin-preview .years{max-height:560px;overflow-y:auto}
+
+/* ── 내보내기 ───────────────────────────────────────────── */
+.admin-export-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin:1rem 0}
+.admin-note{font-size:.83rem;color:var(--mute);min-height:1.4em;margin:0}
+.admin-note.ok{color:#3E7A4C}
+.admin-note.error{color:#C7401A}
+.admin-code-details{margin-top:1rem}
+.admin-code-details summary{cursor:pointer;font-size:.85rem;color:var(--ink-2)}
+.admin-code{
+  margin-top:.8rem;max-height:340px;overflow:auto;background:#171512;color:#EFEAE0;
+  padding:1rem 1.1rem;border-radius:6px;font-family:var(--mono);font-size:.78rem;line-height:1.65;
+  white-space:pre;
+}
+
+@media(max-width:600px){
+  .admin-entry{grid-template-columns:1fr}
+  .admin-entry-actions{flex-direction:row}
+}

@@ -1,0 +1,11 @@
+{
+  "name": "SSRO TREESTUMP · 스스로넷 청소년운영위원회 그루터기",
+  "short_name": "그루터기",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#EFEFEC",
+  "theme_color": "#F2690F",
+  "icons": [
+    { "src": "img/logo.png", "sizes": "256x240", "type": "image/png" }
+  ]
+}

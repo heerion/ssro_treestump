@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연표 편집기 · SSRO TREESTUMP</title>
+<meta name="description" content="그루터기 활동 연혁(나이테)을 편집하고 js/data.js 로 내보내는 관리자용 도구입니다.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/timeline-admin.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body class="admin-body">
+
+<header class="admin-top">
+  <a class="admin-brand" href="../index.html">
+    <img src="../img/logo.png" alt="">
+    <span>SSRO TREESTUMP</span>
+  </a>
+  <div class="admin-top-title">
+    <h1>연표 편집기</h1>
+    <p>활동 연혁(나이테)을 화면에서 고치고, 사이트에 넣을 코드를 만듭니다.</p>
+  </div>
+  <a class="btn ghost admin-back" href="../index.html">사이트로 돌아가기</a>
+</header>
+
+<div id="draftBanner" class="admin-banner" hidden>
+  <p><b>이어서 하던 작업이 있어요.</b> 이 브라우저에 저장된 임시본을 불러올까요?</p>
+  <div class="admin-banner-actions">
+    <button class="btn" id="resumeDraft" type="button">이어서 하기</button>
+    <button class="btn ghost" id="discardDraft" type="button">지우고 새로 시작</button>
+  </div>
+</div>
+
+<main class="admin-main">
+
+  <section class="admin-panel admin-editor" aria-labelledby="editorTitle">
+    <div class="admin-panel-head">
+      <h2 id="editorTitle">연도별 활동</h2>
+      <button class="btn" id="addYearBtn" type="button">+ 연도 추가</button>
+    </div>
+    <p class="admin-hint">연도 안에 활동을 몇 개든 넣을 수 있습니다. 월·제목만 적어도 되고, 설명은 있으면 더 좋아요. 바꾸는 대로 오른쪽 미리보기와 이 브라우저의 임시 저장에 바로 반영됩니다.</p>
+    <div id="yearList" class="admin-year-list"></div>
+  </section>
+
+  <section class="admin-panel admin-preview" aria-labelledby="previewTitle">
+    <div class="admin-panel-head">
+      <h2 id="previewTitle">미리보기</h2>
+      <span class="admin-save-state" id="saveState">저장할 변경 없음</span>
+    </div>
+    <p class="admin-hint">실제 사이트에서 보이는 모습과 똑같이 그립니다.</p>
+    <div class="rings-layout admin-rings">
+      <div class="stump-col">
+        <div class="stump-inner">
+          <div class="stump" id="pvStump"></div>
+        </div>
+      </div>
+      <div class="years" id="pvYears"></div>
+    </div>
+  </section>
+
+  <section class="admin-panel admin-export" aria-labelledby="exportTitle">
+    <h2 id="exportTitle">사이트에 반영하기</h2>
+    <p class="admin-hint">
+      이 편집기는 서버 없이 브라우저에서만 동작합니다. 여기서 바꾼 내용이 방문자에게 바로 보이지는 않아요.
+      아래에서 <b>data.js 다운로드</b>를 눌러 받은 파일로 <code>js/data.js</code> 를 바꾼 뒤,
+      깃허브 등에 다시 올려야 사이트에 반영됩니다.
+    </p>
+    <div class="admin-export-actions">
+      <button class="btn" id="downloadBtn" type="button">data.js 다운로드</button>
+      <button class="btn ghost" id="copyCodeBtn" type="button">연표 코드만 복사</button>
+      <button class="btn ghost" id="resetBtn" type="button">js/data.js 내용으로 되돌리기</button>
+    </div>
+    <p class="admin-note" id="exportNote"></p>
+    <details class="admin-code-details">
+      <summary>내보낼 코드 미리 보기</summary>
+      <pre id="codePreview" class="admin-code"></pre>
+    </details>
+  </section>
+
+</main>
+
+<script src="../js/data.js" defer></script>
+<script src="../js/timeline-core.js" defer></script>
+<script src="timeline-admin.js" defer></script>
+</body>
+</html>
