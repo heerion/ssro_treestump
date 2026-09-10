@@ -200,6 +200,10 @@ a{color:inherit}
   border:1px solid #E4D5C0;
 }
 .ring-avatar span{font-family:var(--latin);font-weight:700;font-size:.95rem;color:#B07A38}
+.member-photo{
+  width:52px;height:52px;border-radius:50%;margin-bottom:1rem;
+  object-fit:cover;border:1px solid #E4D5C0;background:var(--wood);
+}
 .member-role{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--orange);text-transform:uppercase}
 .member-name{font-size:1.12rem;font-weight:600;margin:.35rem 0 .1rem;letter-spacing:-.01em}
 .member-term{font-family:var(--mono);font-size:.72rem;color:var(--mute)}

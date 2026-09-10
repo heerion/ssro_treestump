@@ -1,6 +1,8 @@
 /* ============================================================
-   연표 편집기 전용 스타일. css/style.css 의 색·글꼴 토큰을 그대로 쓰고,
-   여기서는 편집기 화면 배치만 다룹니다.
+   관리자 편집기 공용 스타일 (연표 편집기 · 위원 편집기).
+   css/style.css 의 색·글꼴 토큰을 그대로 쓰고, 여기서는 편집기
+   화면 배치만 다룹니다. 연표 전용 규칙은 아래쪽에 따로 모아 뒀고,
+   위원 편집기 전용 규칙은 css/members-admin.css 에 있습니다.
    ============================================================ */
 
 .admin-body{background:var(--paper);min-height:100vh}
@@ -16,6 +18,9 @@
 .admin-top-title{margin-right:auto}
 .admin-top-title h1{margin:0;font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
 .admin-top-title p{margin:.2rem 0 0;font-size:.85rem;color:var(--mute)}
+.admin-nav-links{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.admin-nav-links > a:not(.btn){font-size:.86rem;color:var(--ink-2);text-decoration:none}
+.admin-nav-links > a:not(.btn):hover{color:var(--orange)}
 .admin-back{white-space:nowrap}
 
 .admin-banner{

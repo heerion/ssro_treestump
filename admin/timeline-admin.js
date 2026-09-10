@@ -346,7 +346,8 @@ function replaceYearsBlock(sourceText){
    ------------------------------------------------------------
    GitHub 토큰은 브라우저에 두지 않습니다. 비밀번호와 연표 데이터를
    저장 중계 서버로 보내면, 서버가 대신 GitHub에 커밋합니다. 서버를
-   만드는 방법은 worker/README.md 를 보세요.
+   만드는 방법은 worker/README.md 를 보세요. 실제 비밀번호 입력·전송
+   로직은 admin/save-panel.js 를 연표·위원 편집기가 함께 씁니다.
    ============================================================ */
 
 /* 관리자가 worker/README.md 대로 Cloudflare Worker를 배포한 뒤,
@@ -354,99 +355,11 @@ function replaceYearsBlock(sourceText){
    비밀번호만 알면 됩니다. */
 const SAVE_ENDPOINT = "";
 
-let pw = "";
-
-function loadPw(){
-  try{
-    const raw = localStorage.getItem(PW_KEY);
-    if (!raw) return;
-    pw = (JSON.parse(raw) || {}).password || "";
-  }catch{}
-}
-
-function savePw(){
-  const remember = $("pwRemember").checked;
-  try{
-    if (remember) localStorage.setItem(PW_KEY, JSON.stringify({ password: pw }));
-    else localStorage.removeItem(PW_KEY);
-  }catch{}
-}
-
-function flashPw(msg, isError){
-  const el = $("pwNote");
-  el.textContent = msg;
-  el.classList.toggle("error", !!isError);
-  el.classList.toggle("ok", !isError);
-}
-
-async function callSaveEndpoint(payload){
-  if (!SAVE_ENDPOINT){
-    throw new Error("아직 저장 서버 주소가 설정되지 않았어요. '관리자 설정'을 펼쳐서 안내를 확인해 주세요.");
-  }
-  let res;
-  try{
-    res = await fetch(SAVE_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-  }catch{
-    throw new Error("저장 서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.");
-  }
-  let data = null;
-  try{ data = await res.json(); }catch{}
-  if (!res.ok){
-    throw new Error((data && data.error) || `저장 서버 오류 (${res.status})`);
-  }
-  return data;
-}
-
-$("pwCheckBtn").onclick = async () => {
-  pw = $("pwInput").value;
-  const btn = $("pwCheckBtn");
-  const label = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "확인 중…";
-  try{
-    await callSaveEndpoint({ password: pw, dryRun: true });
-    flashPw("비밀번호가 맞아요. 이제 '저장'을 누르면 바로 반영돼요.");
-    savePw();
-  }catch(err){
-    flashPw(err.message, true);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = label;
-  }
-};
-
-$("pwSaveBtn").onclick = async () => {
-  pw = $("pwInput").value;
-  if (!pw){
-    flashPw("비밀번호를 넣어 주세요.", true);
-    $("pwInput").focus();
-    return;
-  }
-  const btn = $("pwSaveBtn");
-  const label = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "저장하는 중…";
-  try{
-    await callSaveEndpoint({ password: pw, years });
-    savePw();
-    const t = new Date().toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-    $("pwSaveState").textContent = `저장됨 · ${t}`;
-    flashPw("저장했어요. 사이트에는 보통 1분 안팎이면 반영돼요.");
-  }catch(err){
-    console.error(err);
-    flashPw(err.message || "저장하지 못했어요.", true);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = label;
-  }
-};
-
-$("pwInput").addEventListener("change", () => { pw = $("pwInput").value; savePw(); });
-$("pwRemember").addEventListener("change", savePw);
+initSavePanel({
+  pwKey: PW_KEY,
+  saveEndpoint: SAVE_ENDPOINT,
+  buildPayload: () => ({ action: "years", years }),
+});
 
 /* ============================================================
    6. 수동 내보내기 (다운로드 · 코드 복사)
@@ -516,10 +429,6 @@ function init(){
     $("yearList").innerHTML = `<p class="admin-no-years">js/data.js를 불러오지 못했어요. 파일이 있는지, 문법이 맞는지 확인해 주세요.</p>`;
     return;
   }
-
-  loadPw();
-  $("pwInput").value = pw;
-  if (!SAVE_ENDPOINT) $("adminSettings").open = true;
 
   const draft = loadDraft();
   if (draft && Object.keys(draft.years).length){
