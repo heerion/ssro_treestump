@@ -63,22 +63,65 @@
     </div>
   </section>
 
-  <section class="admin-panel admin-export" aria-labelledby="exportTitle">
-    <h2 id="exportTitle">사이트에 반영하기</h2>
+  <section class="admin-panel admin-publish" aria-labelledby="publishTitle">
+    <h2 id="publishTitle">GitHub에 저장 — 누르면 바로 반영</h2>
     <p class="admin-hint">
-      이 편집기는 서버 없이 브라우저에서만 동작합니다. 여기서 바꾼 내용이 방문자에게 바로 보이지는 않아요.
-      아래에서 <b>data.js 다운로드</b>를 눌러 받은 파일로 <code>js/data.js</code> 를 바꾼 뒤,
-      깃허브 등에 다시 올려야 사이트에 반영됩니다.
+      이 편집기는 서버 없이 브라우저에서만 동작하지만, GitHub 토큰을 한 번 넣어 두면
+      <b>저장</b> 버튼을 누르는 즉시 <code>js/data.js</code> 를 저장소에 직접 커밋합니다.
+      파일을 내려받아 옮길 필요가 없어요. 사이트에는 보통 1분 안팎이면 반영됩니다
+      (GitHub Pages/Netlify/Vercel이 커밋을 보고 자동으로 다시 배포하는 시간).
     </p>
-    <div class="admin-export-actions">
-      <button class="btn" id="downloadBtn" type="button">data.js 다운로드</button>
-      <button class="btn ghost" id="copyCodeBtn" type="button">연표 코드만 복사</button>
-      <button class="btn ghost" id="resetBtn" type="button">js/data.js 내용으로 되돌리기</button>
+
+    <details class="admin-gh-settings" id="ghSettings">
+      <summary>GitHub 연결 설정 <span class="admin-gh-status" id="ghStatus">연결 안 됨</span></summary>
+      <div class="admin-gh-grid">
+        <label>저장소 소유자<input type="text" id="ghOwner" placeholder="heerion" autocomplete="off"></label>
+        <label>저장소 이름<input type="text" id="ghRepo" placeholder="ssro_treestump" autocomplete="off"></label>
+        <label>브랜치<input type="text" id="ghBranch" placeholder="main" autocomplete="off"></label>
+        <label class="admin-gh-token">개인 액세스 토큰(PAT)<input type="password" id="ghToken" placeholder="github_pat_…" autocomplete="off"></label>
+      </div>
+      <label class="admin-gh-remember">
+        <input type="checkbox" id="ghRemember" checked>
+        <span>이 브라우저에 저장소 정보·토큰 기억하기</span>
+      </label>
+      <p class="admin-gh-note">
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub에서 fine-grained 토큰 만들기</a> —
+        <b>Repository access</b>는 이 저장소 하나만, <b>Permissions → Contents</b>는
+        <b>Read and write</b>로만 좁혀서 만드세요. 유효 기간도 짧게 잡는 걸 추천합니다.
+        토큰은 이 브라우저에만 저장되고 GitHub API로만 전송돼요. 공용 컴퓨터에서는
+        체크를 끄거나 아래 '토큰 지우기'로 끝난 뒤 지워 주세요.
+      </p>
+      <div class="admin-export-actions">
+        <button class="btn ghost" id="ghCheckBtn" type="button">연결 확인</button>
+        <button class="btn ghost" id="ghClearBtn" type="button">토큰 지우기</button>
+      </div>
+    </details>
+
+    <div class="admin-export-actions admin-publish-actions">
+      <button class="btn" id="ghSaveBtn" type="button">GitHub에 저장</button>
+      <span class="admin-save-state" id="ghSaveState"></span>
     </div>
-    <p class="admin-note" id="exportNote"></p>
-    <details class="admin-code-details">
-      <summary>내보낼 코드 미리 보기</summary>
-      <pre id="codePreview" class="admin-code"></pre>
+    <p class="admin-note" id="ghNote"></p>
+  </section>
+
+  <section class="admin-panel admin-export" aria-labelledby="exportTitle">
+    <details>
+      <summary><h2 class="admin-export-summary-title" id="exportTitle">수동으로 반영하기 (GitHub 연결 없이 쓸 때)</h2></summary>
+      <p class="admin-hint">
+        토큰을 쓰고 싶지 않거나 인터넷에 올리기 전 로컬에서만 확인할 때 씁니다.
+        <b>data.js 다운로드</b>를 눌러 받은 파일로 <code>js/data.js</code> 를 바꾼 뒤,
+        평소 방법대로 다시 올려야 사이트에 반영됩니다.
+      </p>
+      <div class="admin-export-actions">
+        <button class="btn ghost" id="downloadBtn" type="button">data.js 다운로드</button>
+        <button class="btn ghost" id="copyCodeBtn" type="button">연표 코드만 복사</button>
+        <button class="btn ghost" id="resetBtn" type="button">js/data.js 내용으로 되돌리기</button>
+      </div>
+      <p class="admin-note" id="exportNote"></p>
+      <details class="admin-code-details">
+        <summary>내보낼 코드 미리 보기</summary>
+        <pre id="codePreview" class="admin-code"></pre>
+      </details>
     </details>
   </section>
 
