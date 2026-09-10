@@ -93,7 +93,36 @@
 .admin-preview .yr-head{cursor:pointer}
 .admin-preview .years{max-height:560px;overflow-y:auto}
 
-/* ── 내보내기 ───────────────────────────────────────────── */
+/* ── GitHub에 바로 저장 ─────────────────────────────────── */
+.admin-publish{border-color:var(--orange);background:#FFFBF7}
+.admin-publish-actions{align-items:center}
+.admin-gh-settings{margin:1.1rem 0}
+.admin-gh-settings summary{
+  cursor:pointer;font-size:.88rem;font-weight:500;color:var(--ink-2);
+  display:flex;align-items:center;gap:.6rem;
+}
+.admin-gh-status{
+  font-family:var(--mono);font-size:.72rem;color:var(--mute);
+  border:1px solid var(--line);border-radius:999px;padding:.15rem .6rem;
+}
+.admin-gh-status.on{color:#3E7A4C;border-color:#3E7A4C}
+.admin-gh-status.error{color:#C7401A;border-color:#C7401A}
+.admin-gh-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem}
+.admin-gh-grid label{display:flex;flex-direction:column;gap:.35rem;font-size:.82rem;color:var(--ink-2)}
+.admin-gh-token{grid-column:1 / -1}
+.admin-gh-grid input{
+  font:inherit;font-size:.9rem;padding:.55rem .7rem;border:1px solid var(--line);
+  border-radius:4px;background:var(--panel);
+}
+.admin-gh-remember{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--ink-2);margin-top:.9rem}
+.admin-gh-remember input{accent-color:var(--orange)}
+.admin-gh-note{font-size:.78rem;color:var(--mute);line-height:1.7;margin:.9rem 0 0}
+.admin-gh-note a{color:var(--orange)}
+
+/* ── 내보내기 (수동) ────────────────────────────────────── */
+.admin-export-summary-title{display:inline;margin:0;font-size:1.05rem;font-weight:600}
+.admin-export > details > summary{cursor:pointer;list-style:revert}
+.admin-export > details > .admin-hint{margin-top:1rem}
 .admin-export-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin:1rem 0}
 .admin-note{font-size:.83rem;color:var(--mute);min-height:1.4em;margin:0}
 .admin-note.ok{color:#3E7A4C}
@@ -109,4 +138,6 @@
 @media(max-width:600px){
   .admin-entry{grid-template-columns:1fr}
   .admin-entry-actions{flex-direction:row}
+  .admin-gh-grid{grid-template-columns:1fr}
+  .admin-gh-token{grid-column:auto}
 }
