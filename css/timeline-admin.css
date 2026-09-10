@@ -41,6 +41,24 @@
   .admin-export{grid-column:1 / -1}
 }
 
+/* ── admin/index.html 허브 페이지 ───────────────────────── */
+.admin-main.admin-hub{grid-template-columns:1fr;gap:1.6rem;padding-top:3rem;max-width:900px}
+@media(min-width:700px){.admin-main.admin-hub{grid-template-columns:1fr 1fr}}
+.admin-hub-card{
+  display:flex;flex-direction:column;gap:.7rem;text-decoration:none;color:inherit;
+  transition:border-color .15s,transform .15s;
+}
+.admin-hub-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.admin-hub-icon{font-size:2rem}
+.admin-hub-card h2{margin:0;font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+.admin-hub-card .admin-hint{margin:0}
+.admin-hub-go{margin-top:auto;font-family:var(--mono);font-size:.8rem;color:var(--orange)}
+.admin-hub-footnote{
+  max-width:900px;margin:1.6rem auto 3rem;padding:0 clamp(1.25rem,4vw,3rem);
+  font-size:.82rem;color:var(--mute);
+}
+.admin-hub-footnote a{color:var(--orange)}
+
 .admin-panel{
   background:var(--panel);border:1px solid var(--line);border-radius:8px;
   padding:1.4rem clamp(1.1rem,2.5vw,1.8rem) 1.7rem;
