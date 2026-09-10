@@ -112,15 +112,19 @@ a{color:inherit}
 .nav.solid .nav-links a.on{background:var(--ink);color:#fff}
 
 /* ============================================================
-   히어로 — 화면을 꽉 채우는 주황 판
+   히어로 — 화면을 꽉 채우는 로고색(호박빛 amber) 판
    ============================================================ */
 .hero{
-  position:relative;background:var(--orange);color:#fff;overflow:hidden;
+  position:relative;background:var(--amber);color:#fff;overflow:hidden;
   min-height:100svh;margin-top:calc(var(--nav-h) * -1);
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   padding:calc(var(--nav-h) + 2rem) var(--pad) 6.5rem;
 }
-.mq-field{position:absolute;inset:-2% 0;display:flex;flex-direction:column;justify-content:center;gap:clamp(.1rem,.7vh,.55rem)}
+.mq-field{
+  position:absolute;inset:-2% 0;display:flex;flex-direction:column;justify-content:center;gap:clamp(.1rem,.7vh,.55rem);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 26%,#000 74%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 26%,#000 74%,transparent);
+}
 .mq-row{overflow:hidden}
 .mq-track{display:flex;width:max-content;animation:drift var(--dur,40s) linear infinite;animation-delay:var(--delay,0s)}
 .mq-row.rev .mq-track{animation-direction:reverse}
@@ -143,7 +147,7 @@ a{color:inherit}
 .hero-center::before{
   content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:min(1400px,150vw);height:min(760px,90vh);
-  background:radial-gradient(ellipse at center,var(--orange) 34%,rgba(242,105,15,.86) 52%,rgba(242,105,15,0) 74%);
+  background:radial-gradient(ellipse at center,var(--amber) 34%,rgba(232,155,71,.86) 52%,rgba(232,155,71,0) 74%);
 }
 .hero-center > *{position:relative}
 .hero-mark{width:clamp(38px,5vw,52px);filter:brightness(0) invert(1);margin-bottom:clamp(1rem,2.5vh,1.8rem)}

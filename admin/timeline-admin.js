@@ -1,22 +1,24 @@
 /* ============================================================
    연표 편집기 — js/data.js 를 건드리지 않고 브라우저 안에서만
-   활동 연혁을 다듬어 본 뒤, GitHub에 바로 저장하거나 코드/파일로
-   내보내는 도구입니다. 서버는 없습니다. 'GitHub에 저장'은 이
-   브라우저에서 GitHub REST API를 직접 호출해 커밋하는 방식이고,
-   그러지 않으면 내보낸 data.js 로 파일을 손으로 바꿔야 합니다.
+   활동 연혁을 다듬어 본 뒤, 비밀번호로 바로 저장하거나 코드/파일로
+   내보내는 도구입니다. 편집기 자체는 서버가 없지만, '저장'은 별도로
+   배포한 저장 중계 서버(Cloudflare Worker, worker/ 폴더 참고)에
+   비밀번호와 연표 데이터만 보냅니다 — GitHub 토큰은 그 서버에만
+   있고 브라우저에는 없습니다. 서버 주소가 없으면 아래 6번의 수동
+   내보내기(다운로드·코드 복사)로 data.js 를 손으로 바꿔야 합니다.
    ------------------------------------------------------------
    1. 상태 관리 (연도별 활동 데이터, 임시 저장)
    2. 편집 화면 그리기
    3. 미리보기 그리기 (js/timeline-core.js 재사용)
    4. 코드 생성 (연표 블록)
-   5. GitHub에 직접 저장
+   5. 저장 (중계 서버 + 비밀번호)
    6. 수동 내보내기 (다운로드 · 코드 복사)
    ============================================================ */
 
 (function(){
 
 const DRAFT_KEY = "ssro-treestump:timeline-draft:v1";
-const GH_KEY = "ssro-treestump:github-settings:v1";
+const PW_KEY = "ssro-treestump:save-password:v1";
 const START = 2009;
 const MONTHS = Array.from({length:12}, (_, i) => String(i + 1).padStart(2, "0"));
 
@@ -245,44 +247,30 @@ $("addYearBtn").onclick = addYear;
 /* ============================================================
    3. 미리보기 — 실제 사이트와 같은 함수로 그립니다
    ============================================================ */
-let pvOpenYear = null;
-let pvRingEls = {};
-
+/* 미리보기는 '지금 이렇게 저장돼요' 를 바로 확인하는 용도라, 실제
+   사이트처럼 눌러서 펼치는 아코디언이 아니라 모든 연도의 활동을
+   처음부터 전부 펼쳐서 보여줍니다 (css/timeline-admin.css 의
+   .admin-preview .yr-body 규칙). 나이테를 누르면 그 연도로 스크롤만
+   이동합니다. */
 function renderPreview(){
   const { list } = TimelineCore.yearRange(years, START);
   const pvStump = $("pvStump");
   pvStump.innerHTML = "";
-  const { svg, ringEls } = TimelineCore.buildRingsSvg(list, years, y => togglePreviewYear(y));
+  const { svg } = TimelineCore.buildRingsSvg(list, years, y => scrollPreviewToYear(y));
   pvStump.appendChild(svg);
-  pvRingEls = ringEls;
 
   const { mainHTML, restHTML, restYears } = TimelineCore.buildYearListHTML(list, years, { start: START, showCount: 5 });
   const pvYears = $("pvYears");
   pvYears.innerHTML = mainHTML + (restYears.length ? restHTML : "");
   pvYears.querySelectorAll(".rv").forEach(el => el.classList.add("in"));
 
-  applyPreviewOpenState();
   updateCodePreview();
 }
 
-function togglePreviewYear(y){
-  pvOpenYear = pvOpenYear === y ? null : y;
-  applyPreviewOpenState();
+function scrollPreviewToYear(y){
+  const el = document.querySelector(`#pvYears .yr[data-y="${y}"]`);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
-
-function applyPreviewOpenState(){
-  document.querySelectorAll("#pvYears .yr").forEach(el => {
-    el.classList.toggle("on", Number(el.dataset.y) === pvOpenYear);
-  });
-  Object.entries(pvRingEls).forEach(([k, g]) => {
-    g.classList.toggle("on", Number(k) === pvOpenYear);
-  });
-}
-
-$("pvYears").addEventListener("click", e => {
-  const h = e.target.closest(".yr-head");
-  if (h) togglePreviewYear(Number(h.closest(".yr").dataset.y));
-});
 
 /* ============================================================
    4. 코드 생성 · 내보내기
@@ -354,178 +342,111 @@ function replaceYearsBlock(sourceText){
 }
 
 /* ============================================================
-   5. GitHub에 직접 저장
+   5. 저장 — 중계 서버(Cloudflare Worker)에 비밀번호만 보내 저장
    ------------------------------------------------------------
-   브라우저에서 GitHub REST API를 호출해 js/data.js를 그 자리에서
-   커밋합니다. 토큰은 이 브라우저의 localStorage에만 남고, GitHub API
-   말고 다른 곳으로는 전송되지 않습니다. 커밋이 올라가면 GitHub
-   Pages/Netlify/Vercel이 알아서 다시 배포합니다.
+   GitHub 토큰은 브라우저에 두지 않습니다. 비밀번호와 연표 데이터를
+   저장 중계 서버로 보내면, 서버가 대신 GitHub에 커밋합니다. 서버를
+   만드는 방법은 worker/README.md 를 보세요.
    ============================================================ */
-let gh = { owner: "", repo: "", branch: "main", token: "" };
 
-function loadGhSettings(){
+/* 관리자가 worker/README.md 대로 Cloudflare Worker를 배포한 뒤,
+   여기에 그 주소를 한 번만 넣어 주세요. 위원들은 이 값을 몰라도 되고
+   비밀번호만 알면 됩니다. */
+const SAVE_ENDPOINT = "";
+
+let pw = "";
+
+function loadPw(){
   try{
-    const raw = localStorage.getItem(GH_KEY);
+    const raw = localStorage.getItem(PW_KEY);
     if (!raw) return;
-    gh = { ...gh, ...JSON.parse(raw) };
+    pw = (JSON.parse(raw) || {}).password || "";
   }catch{}
 }
 
-function saveGhSettings(){
-  const remember = $("ghRemember").checked;
-  const toSave = remember ? gh : { owner: gh.owner, repo: gh.repo, branch: gh.branch, token: "" };
-  try{ localStorage.setItem(GH_KEY, JSON.stringify(toSave)); }catch{}
+function savePw(){
+  const remember = $("pwRemember").checked;
+  try{
+    if (remember) localStorage.setItem(PW_KEY, JSON.stringify({ password: pw }));
+    else localStorage.removeItem(PW_KEY);
+  }catch{}
 }
 
-function readGhFieldsIntoState(){
-  gh.owner = $("ghOwner").value.trim();
-  gh.repo = $("ghRepo").value.trim();
-  gh.branch = $("ghBranch").value.trim() || "main";
-  gh.token = $("ghToken").value.trim();
-}
-
-function fillGhFields(){
-  $("ghOwner").value = gh.owner;
-  $("ghRepo").value = gh.repo;
-  $("ghBranch").value = gh.branch || "main";
-  $("ghToken").value = gh.token;
-}
-
-function setGhStatus(text, state){
-  const el = $("ghStatus");
-  el.textContent = text;
-  el.classList.remove("on", "error");
-  if (state) el.classList.add(state);
-}
-
-function flashGh(msg, isError){
-  const el = $("ghNote");
+function flashPw(msg, isError){
+  const el = $("pwNote");
   el.textContent = msg;
   el.classList.toggle("error", !!isError);
   el.classList.toggle("ok", !isError);
 }
 
-function ghHeaders(){
-  return {
-    "Accept": "application/vnd.github+json",
-    "Authorization": `Bearer ${gh.token}`,
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
-}
-
-async function ghErrorFrom(res){
-  let detail = "";
-  try{ const j = await res.json(); detail = j.message || ""; }catch{}
-  const known = {
-    401: "토큰이 올바르지 않아요. 새로 발급해 다시 넣어 주세요.",
-    403: "권한이 부족해요. 토큰에 이 저장소의 Contents 읽기/쓰기 권한이 있는지 확인해 주세요.",
-    404: "저장소나 파일을 찾을 수 없어요. 소유자·저장소·브랜치 이름을 확인해 주세요."
-  };
-  return new Error(known[res.status] || `GitHub 응답 오류 (${res.status})${detail ? " · " + detail : ""}`);
-}
-
-/* GitHub Contents API는 base64로 주고받습니다. 한글이 섞여 있으므로
-   UTF-8 바이트 단위로 안전하게 변환합니다. */
-function utf8ToBase64(str){
-  const bytes = new TextEncoder().encode(str);
-  let bin = "";
-  bytes.forEach(b => { bin += String.fromCharCode(b); });
-  return btoa(bin);
-}
-
-function base64ToUtf8(b64){
-  const bin = atob(b64.replace(/\n/g, ""));
-  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-async function ghGetDataFile(){
-  const url = `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/js/data.js?ref=${encodeURIComponent(gh.branch)}`;
-  const res = await fetch(url, { headers: ghHeaders() });
-  if (!res.ok) throw await ghErrorFrom(res);
-  return res.json();
-}
-
-async function checkGhConnection(quiet){
-  if (!gh.owner || !gh.repo || !gh.token){
-    setGhStatus(quiet ? "연결 안 됨" : "정보 부족", quiet ? null : "error");
-    if (!quiet) flashGh("소유자·저장소 이름·토큰을 모두 넣어 주세요.", true);
-    return false;
+async function callSaveEndpoint(payload){
+  if (!SAVE_ENDPOINT){
+    throw new Error("아직 저장 서버 주소가 설정되지 않았어요. '관리자 설정'을 펼쳐서 안내를 확인해 주세요.");
   }
-  if (!quiet) setGhStatus("확인 중…");
+  let res;
   try{
-    await ghGetDataFile();
-    setGhStatus("연결됨", "on");
-    if (!quiet) flashGh(`${gh.owner}/${gh.repo} (${gh.branch}) 에 연결됐어요.`);
-    return true;
-  }catch(err){
-    setGhStatus("연결 안 됨", "error");
-    if (!quiet) flashGh(err.message, true);
-    return false;
+    res = await fetch(SAVE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }catch{
+    throw new Error("저장 서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.");
   }
+  let data = null;
+  try{ data = await res.json(); }catch{}
+  if (!res.ok){
+    throw new Error((data && data.error) || `저장 서버 오류 (${res.status})`);
+  }
+  return data;
 }
 
-$("ghCheckBtn").onclick = async () => {
-  readGhFieldsIntoState();
-  const ok = await checkGhConnection(false);
-  if (ok) saveGhSettings();
-};
-
-$("ghClearBtn").onclick = () => {
-  gh.token = "";
-  $("ghToken").value = "";
-  try{ localStorage.setItem(GH_KEY, JSON.stringify({ owner: gh.owner, repo: gh.repo, branch: gh.branch, token: "" })); }catch{}
-  setGhStatus("연결 안 됨");
-  flashGh("저장된 토큰을 지웠어요. 저장소 정보는 남겨 뒀어요.");
-};
-
-$("ghSaveBtn").onclick = async () => {
-  readGhFieldsIntoState();
-  if (!gh.owner || !gh.repo || !gh.token){
-    $("ghSettings").open = true;
-    flashGh("먼저 위 'GitHub 연결 설정'에서 저장소 정보와 토큰을 넣어 주세요.", true);
-    return;
-  }
-  const btn = $("ghSaveBtn");
+$("pwCheckBtn").onclick = async () => {
+  pw = $("pwInput").value;
+  const btn = $("pwCheckBtn");
   const label = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "저장하는 중…";
+  btn.textContent = "확인 중…";
   try{
-    const file = await ghGetDataFile();
-    const original = base64ToUtf8(file.content);
-    const updated = replaceYearsBlock(original);
-    const res = await fetch(
-      `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/js/data.js`,
-      {
-        method: "PUT",
-        headers: { ...ghHeaders(), "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: `연표 업데이트 (연표 편집기) · ${new Date().toLocaleString("ko-KR")}`,
-          content: utf8ToBase64(updated),
-          sha: file.sha,
-          branch: gh.branch
-        })
-      }
-    );
-    if (!res.ok) throw await ghErrorFrom(res);
-    setGhStatus("연결됨", "on");
-    saveGhSettings();
-    const t = new Date().toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-    $("ghSaveState").textContent = `GitHub에 저장됨 · ${t}`;
-    flashGh("GitHub에 저장했어요. 사이트에는 보통 1분 안팎이면 반영돼요.");
+    await callSaveEndpoint({ password: pw, dryRun: true });
+    flashPw("비밀번호가 맞아요. 이제 '저장'을 누르면 바로 반영돼요.");
+    savePw();
   }catch(err){
-    console.error(err);
-    flashGh(err.message || "저장하지 못했어요.", true);
+    flashPw(err.message, true);
   }finally{
     btn.disabled = false;
     btn.textContent = label;
   }
 };
 
-["ghOwner", "ghRepo", "ghBranch", "ghToken"].forEach(id => {
-  $(id).addEventListener("change", () => { readGhFieldsIntoState(); saveGhSettings(); });
-});
-$("ghRemember").addEventListener("change", saveGhSettings);
+$("pwSaveBtn").onclick = async () => {
+  pw = $("pwInput").value;
+  if (!pw){
+    flashPw("비밀번호를 넣어 주세요.", true);
+    $("pwInput").focus();
+    return;
+  }
+  const btn = $("pwSaveBtn");
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "저장하는 중…";
+  try{
+    await callSaveEndpoint({ password: pw, years });
+    savePw();
+    const t = new Date().toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
+    $("pwSaveState").textContent = `저장됨 · ${t}`;
+    flashPw("저장했어요. 사이트에는 보통 1분 안팎이면 반영돼요.");
+  }catch(err){
+    console.error(err);
+    flashPw(err.message || "저장하지 못했어요.", true);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+};
+
+$("pwInput").addEventListener("change", () => { pw = $("pwInput").value; savePw(); });
+$("pwRemember").addEventListener("change", savePw);
 
 /* ============================================================
    6. 수동 내보내기 (다운로드 · 코드 복사)
@@ -590,28 +511,15 @@ function boot(years0){
   renderPreview();
 }
 
-/* GitHub Pages 프로젝트 페이지(<owner>.github.io/<repo>/...)에서 열었다면
-   소유자·저장소 이름을 짐작해 미리 채워 둡니다. 이미 저장된 값이 있으면
-   건드리지 않습니다. 다른 곳(Netlify, Vercel, 커스텀 도메인 등)에서는
-   그냥 비워 두고 직접 입력하면 됩니다. */
-function guessGhDefaults(){
-  const m = /^([^.]+)\.github\.io$/.exec(location.hostname);
-  if (!m) return;
-  const seg = location.pathname.split("/").filter(Boolean)[0];
-  if (!gh.owner) gh.owner = m[1];
-  if (!gh.repo && seg) gh.repo = seg;
-}
-
 function init(){
   if (typeof DATA === "undefined" || !DATA){
     $("yearList").innerHTML = `<p class="admin-no-years">js/data.js를 불러오지 못했어요. 파일이 있는지, 문법이 맞는지 확인해 주세요.</p>`;
     return;
   }
 
-  loadGhSettings();
-  guessGhDefaults();
-  fillGhFields();
-  if (gh.owner && gh.repo && gh.token) checkGhConnection(true);
+  loadPw();
+  $("pwInput").value = pw;
+  if (!SAVE_ENDPOINT) $("adminSettings").open = true;
 
   const draft = loadDraft();
   if (draft && Object.keys(draft.years).length){

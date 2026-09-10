@@ -64,44 +64,39 @@
   </section>
 
   <section class="admin-panel admin-publish" aria-labelledby="publishTitle">
-    <h2 id="publishTitle">GitHub에 저장 — 누르면 바로 반영</h2>
-    <p class="admin-hint">
-      이 편집기는 서버 없이 브라우저에서만 동작하지만, GitHub 토큰을 한 번 넣어 두면
-      <b>저장</b> 버튼을 누르는 즉시 <code>js/data.js</code> 를 저장소에 직접 커밋합니다.
-      파일을 내려받아 옮길 필요가 없어요. 사이트에는 보통 1분 안팎이면 반영됩니다
-      (GitHub Pages/Netlify/Vercel이 커밋을 보고 자동으로 다시 배포하는 시간).
+    <h2 id="publishTitle">저장 — 비밀번호 한 번으로 바로 반영</h2>
+    <p class="admin-hint" id="publishHint">
+      GitHub 계정이나 토큰은 몰라도 됩니다. 담당자에게 받은 <b>비밀번호</b>를
+      넣고 <b>저장</b>을 누르면 바로 사이트에 반영돼요. 사이트에는 보통 1분
+      안팎이면 나타납니다.
     </p>
 
-    <details class="admin-gh-settings" id="ghSettings">
-      <summary>GitHub 연결 설정 <span class="admin-gh-status" id="ghStatus">연결 안 됨</span></summary>
-      <div class="admin-gh-grid">
-        <label>저장소 소유자<input type="text" id="ghOwner" placeholder="heerion" autocomplete="off"></label>
-        <label>저장소 이름<input type="text" id="ghRepo" placeholder="ssro_treestump" autocomplete="off"></label>
-        <label>브랜치<input type="text" id="ghBranch" placeholder="main" autocomplete="off"></label>
-        <label class="admin-gh-token">개인 액세스 토큰(PAT)<input type="password" id="ghToken" placeholder="github_pat_…" autocomplete="off"></label>
-      </div>
-      <label class="admin-gh-remember">
-        <input type="checkbox" id="ghRemember" checked>
-        <span>이 브라우저에 저장소 정보·토큰 기억하기</span>
-      </label>
-      <p class="admin-gh-note">
-        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub에서 fine-grained 토큰 만들기</a> —
-        <b>Repository access</b>는 이 저장소 하나만, <b>Permissions → Contents</b>는
-        <b>Read and write</b>로만 좁혀서 만드세요. 유효 기간도 짧게 잡는 걸 추천합니다.
-        토큰은 이 브라우저에만 저장되고 GitHub API로만 전송돼요. 공용 컴퓨터에서는
-        체크를 끄거나 아래 '토큰 지우기'로 끝난 뒤 지워 주세요.
-      </p>
-      <div class="admin-export-actions">
-        <button class="btn ghost" id="ghCheckBtn" type="button">연결 확인</button>
-        <button class="btn ghost" id="ghClearBtn" type="button">토큰 지우기</button>
-      </div>
-    </details>
+    <div class="admin-gh-grid">
+      <label class="admin-gh-token">비밀번호<input type="password" id="pwInput" placeholder="담당자에게 받은 비밀번호" autocomplete="off"></label>
+    </div>
+    <label class="admin-gh-remember">
+      <input type="checkbox" id="pwRemember" checked>
+      <span>이 브라우저에 비밀번호 기억하기</span>
+    </label>
 
     <div class="admin-export-actions admin-publish-actions">
-      <button class="btn" id="ghSaveBtn" type="button">GitHub에 저장</button>
-      <span class="admin-save-state" id="ghSaveState"></span>
+      <button class="btn" id="pwSaveBtn" type="button">저장</button>
+      <button class="btn ghost" id="pwCheckBtn" type="button">비밀번호 확인</button>
+      <span class="admin-save-state" id="pwSaveState"></span>
     </div>
-    <p class="admin-note" id="ghNote"></p>
+    <p class="admin-note" id="pwNote"></p>
+
+    <details class="admin-gh-settings" id="adminSettings">
+      <summary>관리자 설정</summary>
+      <p class="admin-gh-note">
+        이 편집기는 <a href="../worker/README.md" target="_blank" rel="noopener">worker/README.md</a>
+        안내대로 만든 저장 중계 서버(Cloudflare Worker)로 커밋합니다. 처음
+        설정하는 관리자는 그 문서를 따라 서버를 배포한 뒤,
+        <code>admin/timeline-admin.js</code> 맨 위 <code>SAVE_ENDPOINT</code>
+        값에 배포된 주소를 넣어 주세요. 위원들은 이 설정을 몰라도 되고,
+        비밀번호만 알면 됩니다.
+      </p>
+    </details>
   </section>
 
   <section class="admin-panel admin-export" aria-labelledby="exportTitle">
