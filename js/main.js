@@ -17,15 +17,9 @@ function start(){
   /* ============================================================
      구성원 — DATA.members 만 고치면 카드가 자동으로 만들어집니다
      ============================================================ */
-  document.getElementById("memberGrid").innerHTML = (DATA.members || []).map((m, i) => `
-    <article class="member rv" style="transition-delay:${Math.min(i,7)*60}ms">
-      <div class="ring-avatar" aria-hidden="true"><span>${esc((m.name || "?").slice(0,1))}</span></div>
-      <p class="member-role">${esc(m.role)}</p>
-      <h3 class="member-name">${esc(m.name)}</h3>
-      <p class="member-term">${esc(m.term)}</p>
-      <p class="member-word">${esc(m.word)}</p>
-      <div class="tags">${(m.tags || []).map(t=>`<i>${esc(t)}</i>`).join("")}</div>
-    </article>`).join("");
+  document.getElementById("memberGrid").innerHTML = (DATA.members || []).map((m, i) =>
+    MemberCore.cardHTML(m, { delayMs: Math.min(i, 7) * 60 })
+  ).join("");
 
   /* ============================================================
      나이테 + 연도 아코디언
@@ -122,7 +116,7 @@ function start(){
   (function igFeed(){
     const box = document.getElementById("igFeed");
     const ig = DATA.instagram || {};
-    const handle = ig.handle || "ssronet";
+    const handle = ig.handle || "treestump_ssro";
     const profile = `https://www.instagram.com/${handle}/`;
 
     const card = () => {

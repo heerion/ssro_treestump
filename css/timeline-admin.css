@@ -1,6 +1,8 @@
 /* ============================================================
-   연표 편집기 전용 스타일. css/style.css 의 색·글꼴 토큰을 그대로 쓰고,
-   여기서는 편집기 화면 배치만 다룹니다.
+   관리자 편집기 공용 스타일 (연표 편집기 · 위원 편집기).
+   css/style.css 의 색·글꼴 토큰을 그대로 쓰고, 여기서는 편집기
+   화면 배치만 다룹니다. 연표 전용 규칙은 아래쪽에 따로 모아 뒀고,
+   위원 편집기 전용 규칙은 css/members-admin.css 에 있습니다.
    ============================================================ */
 
 .admin-body{background:var(--paper);min-height:100vh}
@@ -16,6 +18,9 @@
 .admin-top-title{margin-right:auto}
 .admin-top-title h1{margin:0;font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
 .admin-top-title p{margin:.2rem 0 0;font-size:.85rem;color:var(--mute)}
+.admin-nav-links{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.admin-nav-links > a:not(.btn){font-size:.86rem;color:var(--ink-2);text-decoration:none}
+.admin-nav-links > a:not(.btn):hover{color:var(--orange)}
 .admin-back{white-space:nowrap}
 
 .admin-banner{
@@ -35,6 +40,24 @@
   .admin-main{grid-template-columns:1.15fr .85fr}
   .admin-export{grid-column:1 / -1}
 }
+
+/* ── admin/index.html 허브 페이지 ───────────────────────── */
+.admin-main.admin-hub{grid-template-columns:1fr;gap:1.6rem;padding-top:3rem;max-width:900px}
+@media(min-width:700px){.admin-main.admin-hub{grid-template-columns:1fr 1fr}}
+.admin-hub-card{
+  display:flex;flex-direction:column;gap:.7rem;text-decoration:none;color:inherit;
+  transition:border-color .15s,transform .15s;
+}
+.admin-hub-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.admin-hub-icon{font-size:2rem}
+.admin-hub-card h2{margin:0;font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+.admin-hub-card .admin-hint{margin:0}
+.admin-hub-go{margin-top:auto;font-family:var(--mono);font-size:.8rem;color:var(--orange)}
+.admin-hub-footnote{
+  max-width:900px;margin:1.6rem auto 3rem;padding:0 clamp(1.25rem,4vw,3rem);
+  font-size:.82rem;color:var(--mute);
+}
+.admin-hub-footnote a{color:var(--orange)}
 
 .admin-panel{
   background:var(--panel);border:1px solid var(--line);border-radius:8px;
@@ -90,10 +113,12 @@
 
 /* ── 미리보기 ───────────────────────────────────────────── */
 .admin-rings .stump{max-width:220px}
-.admin-preview .yr-head{cursor:pointer}
-.admin-preview .years{max-height:560px;overflow-y:auto}
+/* 미리보기는 확인용이라 접어 두지 않고 모든 연도의 활동을 항상 펼쳐 보여줍니다.
+   내부 스크롤로 잘라내지 않고 페이지와 함께 자연스럽게 스크롤됩니다. */
+.admin-preview .yr-body{grid-template-rows:1fr}
+.admin-preview .yr-head{cursor:default}
 
-/* ── GitHub에 바로 저장 ─────────────────────────────────── */
+/* ── 저장 (비밀번호 + 중계 서버) ────────────────────────── */
 .admin-publish{border-color:var(--orange);background:#FFFBF7}
 .admin-publish-actions{align-items:center}
 .admin-gh-settings{margin:1.1rem 0}
@@ -101,12 +126,6 @@
   cursor:pointer;font-size:.88rem;font-weight:500;color:var(--ink-2);
   display:flex;align-items:center;gap:.6rem;
 }
-.admin-gh-status{
-  font-family:var(--mono);font-size:.72rem;color:var(--mute);
-  border:1px solid var(--line);border-radius:999px;padding:.15rem .6rem;
-}
-.admin-gh-status.on{color:#3E7A4C;border-color:#3E7A4C}
-.admin-gh-status.error{color:#C7401A;border-color:#C7401A}
 .admin-gh-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem}
 .admin-gh-grid label{display:flex;flex-direction:column;gap:.35rem;font-size:.82rem;color:var(--ink-2)}
 .admin-gh-token{grid-column:1 / -1}

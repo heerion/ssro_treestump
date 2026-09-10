@@ -1,0 +1,51 @@
+/* ============================================================
+   위원 편집기 전용 스타일. 공용 관리자 스타일은 css/timeline-admin.css 를
+   함께 씁니다.
+   ============================================================ */
+
+.admin-member-list{display:flex;flex-direction:column;gap:.9rem}
+.admin-member{
+  display:grid;grid-template-columns:auto 1fr auto;gap:1rem;
+  padding:1rem;border:1px solid var(--line);border-radius:6px;align-items:start;
+}
+.admin-member-photo{display:flex;flex-direction:column;align-items:center;gap:.5rem;width:96px}
+.admin-member-photo img,
+.admin-member-photo .admin-photo-placeholder{
+  width:72px;height:72px;border-radius:50%;object-fit:cover;
+  border:1px solid #E4D5C0;background:var(--wood);
+}
+.admin-member-photo .admin-photo-placeholder{
+  display:grid;place-items:center;font-family:var(--latin);font-weight:700;color:#B07A38;
+  background:repeating-radial-gradient(circle at 46% 54%,var(--wood) 0 3px,#F7EFE4 3px 6px);
+}
+.admin-member-photo input[type="file"]{display:none}
+.admin-photo-btn{
+  font-size:.72rem;color:var(--ink-2);background:none;border:1px solid var(--line);
+  border-radius:4px;padding:.3rem .5rem;text-align:center;
+}
+.admin-photo-btn:hover{border-color:var(--orange);color:var(--orange)}
+.admin-photo-remove{color:#C7401A;border:0;background:none;font-size:.72rem;padding:0}
+.admin-photo-note{font-size:.7rem;color:var(--mute);text-align:center;line-height:1.5}
+
+.admin-member-fields{display:grid;grid-template-columns:1fr 1fr;gap:.6rem .8rem}
+.admin-member-fields label{
+  display:flex;flex-direction:column;gap:.3rem;font-size:.78rem;color:var(--ink-2);
+}
+.admin-member-fields input,.admin-member-fields textarea{
+  font:inherit;font-size:.87rem;padding:.5rem .6rem;border:1px solid var(--line);
+  border-radius:4px;background:var(--panel);
+}
+.admin-member-fields textarea{resize:vertical;min-height:2.6em;line-height:1.55}
+.admin-member-fields .admin-field-wide{grid-column:1 / -1}
+
+.admin-member-actions{display:flex;flex-direction:column;gap:.35rem}
+
+@media(max-width:640px){
+  .admin-member{grid-template-columns:1fr}
+  .admin-member-photo{flex-direction:row;width:auto}
+  .admin-member-fields{grid-template-columns:1fr}
+  .admin-member-actions{flex-direction:row}
+}
+
+/* ── 미리보기 ───────────────────────────────────────────── */
+.admin-member-grid{margin-top:0}
